@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Myrsoft Admin</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-red-600 to-red-800 text-white p-6 shadow-md rounded-b-xl">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-3xl font-bold">Myrsoft Admin</h1>
+            <nav>
+                <ul class="flex space-x-4">
+                    <li><a href="/index.html" class="hover:text-red-200 transition-colors duration-200">Voltar para a Loja</a></li>
+                    <li><a href="admin.html#produtos" class="hover:text-red-200 transition-colors duration-200">Gerenciar Produtos</a></li>
+                    <li><a href="admin.html#eventos" class="hover:text-red-200 transition-colors duration-200">Gerenciar Eventos</a></li>
+                    <li><a href="admin.html#categorias" class="hover:text-red-200 transition-colors duration-200">Gerenciar Categorias</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Message Modal -->
+    <div id="messageModal" class="message-modal">
+        <p id="messageText" class="text-lg font-semibold mb-4"></p>
+        <button id="closeMessageModal" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full">Fechar</button>
+    </div>
+    <div id="overlay" class="overlay"></div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto p-4 py-8">
+
+        <!-- Section: Gerenciar Produtos -->
+        <section id="produtos" class="mb-12">
+            <h2 class="text-4xl font-extrabold text-gray-900 mb-6 text-center">Gerenciar Produtos</h2>
+            <p class="text-gray-600 text-center mb-6">ID do Usuário: <span id="userIdDisplay" class="font-semibold text-red-600">Carregando...</span></p>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-2xl font-bold mb-4">Adicionar/Editar Produto</h3>
+                <form id="productForm" class="space-y-4">
+                    <div>
+                        <label for="productName" class="block text-sm font-medium text-gray-700">Nome do Produto</label>
+                        <input type="text" id="productName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-500 focus:ring-opacity-50 p-2" required>
+                    </div>
+                    <div>
+                        <label for="productDescription" class="block text-sm font-medium text-gray-700">Descrição</label>
+                        <textarea id="productDescription" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-500 focus:ring-opacity-50 p-2" required></textarea>
+                    </div>
+                    <div>
+                        <label for="productPrice" class="block text-sm font-medium text-gray-700">Preço (R$)</label>
+                        <input type="number" id="productPrice" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-500 focus:ring-opacity-50 p-2" required>
+                    </div>
+                    <div>
+                        <label for="productQuantity" class="block text-sm font-medium text-gray-700">Quantidade Disponível</label>
+                        <input type="number" id="productQuantity" step="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-500 focus:ring-opacity-50 p-2" required>
+                    </div>
+                    <div>
+                        <label for="productCategory" class="block text-sm font-medium text-gray-700">Categoria</label>
+                        <select id="productCategory" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-500 focus:ring-opacity-50 p-2">
+                            <option value="">Selecione uma categoria</option>
+                            <!-- Categorias serão carregadas aqui -->
+                        </select>
+                    </div>
+                    <div>
+                        <label for="productSubcategory" class="block text-sm font-medium text-gray-700">Subcategoria (Opcional)</label>
+                        <select id="productSubcategory" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-500 focus:ring-opacity-50 p-2">
+                            <option value="">Selecione uma subcategoria</option>
+                            <!-- Subcategorias serão carregadas aqui -->
+                        </select>
+                    </div>
+                    <div>
+                        <label for="productFile" class="block text-sm font-medium text-gray-700">Carregar Imagem do Produto</label>
+                        <input type="file" id="productFile" accept="image/*" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-500 focus:ring-opacity-50 p-2">
+                        <p class="text-xs text-gray-500 mt-1">Imagens pequenas (máx. 1MB por documento) são recomendadas para evitar erros de limite do Firestore.</p>
+                        <img id="imagePreview" src="#" alt="Pré-visualização da Imagem" class="mt-2 hidden w-32 h-32 object-cover rounded-md border border-gray-300">
+                    </div>
+                    <input type="hidden" id="productIdToEdit">
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full transition-colors duration-200 w-full">Salvar Produto</button>
+                    <button type="button" id="cancelEditBtn" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-full transition-colors duration-200 w-full mt-2 hidden">Cancelar Edição</button>
+                </form>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-2xl font-bold mb-4">Produtos Cadastrados</h3>
+                <div id="adminProductList" class="space-y-4">
+                    <p class="text-gray-500 text-center" id="loadingProductsMessage">Carregando produtos...</p>
+                    <!-- Products will be listed here for admin -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Gerenciar Eventos -->
+        <section id="eventos" class="mb-12 hidden">
+            <h2 class="text-4xl font-extrabold text-gray-900 mb-6 text-center">Gerenciar Eventos</h2>
+            <p class="text-gray-600 text-center mb-6">ID do Usuário: <span id="userIdDisplayEvents" class="font-semibold text-red-600">Carregando...</span></p>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-2xl font-bold mb-4">Adicionar/Editar Evento</h3>
+                <form id="eventForm" class="space-y-4">
+                    <div>
+                        <label for="eventName" class="block text-sm font-medium text-gray-700">Nome do Evento</label>
+                        <input type="text" id="eventName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-500 focus:ring-opacity-50 p-2" required>
+                    </div>
+                    <div>
+                        <label for="eventDescription" class="block text-sm font-medium text-gray-700">Descrição</label>
+                        <textarea id="eventDescription" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-500 focus:ring-opacity-50 p-2" required></textarea>
+                    </div>
+                    <div>
+                        <label for="eventDate" class="block text-sm font-medium text-gray-700">Data do Evento</label>
+                        <input type="date" id="eventDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-500 focus:ring-opacity-50 p-2" required>
+                    </div>
+                    <div>
+                        <label for="eventLocation" class="block text-sm font-medium text-gray-700">Local do Evento</label>
+                        <input type="text" id="eventLocation" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-500 focus:ring-opacity-50 p-2" required>
+                    </div>
+                    <div>
+                        <label for="eventLink" class="block text-sm font-medium text-gray-700">Link do Evento (URL)</label>
+                        <input type="url" id="eventLink" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-500 focus:ring-opacity-50 p-2" placeholder="Ex: https://linkdoevento.com">
+                    </div>
+                    <div>
+                        <label for="eventFile" class="block text-sm font-medium text-gray-700">Carregar Imagem do Evento</label>
+                        <input type="file" id="eventFile" accept="image/*" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-500 focus:ring-opacity-50 p-2">
+                        <p class="text-xs text-gray-500 mt-1">Imagens pequenas (máx. 1MB por documento) são recomendadas para evitar erros de limite do Firestore.</p>
+                        <img id="eventImagePreview" src="#" alt="Pré-visualização da Imagem do Evento" class="mt-2 hidden w-32 h-32 object-cover rounded-md border border-gray-300">
+                    </div>
+                    <input type="hidden" id="eventIdToEdit">
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full transition-colors duration-200 w-full">Salvar Evento</button>
+                    <button type="button" id="cancelEventEditBtn" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-full transition-colors duration-200 w-full mt-2 hidden">Cancelar Edição</button>
+                </form>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-2xl font-bold mb-4">Eventos Cadastrados</h3>
+                <div id="adminEventList" class="space-y-4">
+                    <p class="text-gray-500 text-center" id="loadingEventsMessage">Carregando eventos...</p>
+                    <!-- Events will be listed here for admin -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Gerenciar Categorias e Subcategorias -->
+        <section id="categorias" class="mb-12 hidden">
+            <h2 class="text-4xl font-extrabold text-gray-900 mb-6 text-center">Gerenciar Categorias e Subcategorias</h2>
+            <p class="text-gray-600 text-center mb-6">ID do Usuário: <span id="userIdDisplayCategories" class="font-semibold text-red-600">Carregando...</span></p>
+
+            <!-- Gerenciar Categorias -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-2xl font-bold mb-4">Adicionar/Editar Categoria</h3>
+                <form id="categoryForm" class="space-y-4">
+                    <div>
+                        <label for="categoryName" class="block text-sm font-medium text-gray-700">Nome da Categoria</label>
+                        <input type="text" id="categoryName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-500 focus:ring-opacity-50 p-2" required>
+                    </div>
+                    <input type="hidden" id="categoryIdToEdit">
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full transition-colors duration-200 w-full">Salvar Categoria</button>
+                    <button type="button" id="cancelCategoryEditBtn" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-full transition-colors duration-200 w-full mt-2 hidden">Cancelar Edição</button>
+                </form>
+            </div>
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-2xl font-bold mb-4">Categorias Cadastradas</h3>
+                <div id="adminCategoryList" class="space-y-4">
+                    <p class="text-gray-500 text-center" id="loadingCategoriesMessage">Carregando categorias...</p>
+                    <!-- Categorias serão listadas aqui -->
+                </div>
+            </div>
+
+            <!-- Gerenciar Subcategorias -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-2xl font-bold mb-4">Adicionar/Editar Subcategoria</h3>
+                <form id="subcategoryForm" class="space-y-4">
+                    <div>
+                        <label for="subcategoryName" class="block text-sm font-medium text-gray-700">Nome da Subcategoria</label>
+                        <input type="text" id="subcategoryName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-500 focus:ring-opacity-50 p-2" required>
+                    </div>
+                    <div>
+                        <label for="parentCategorySelect" class="block text-sm font-medium text-gray-700">Categoria Principal</label>
+                        <select id="parentCategorySelect" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-500 focus:ring-opacity-50 p-2" required>
+                            <option value="">Selecione uma categoria</option>
+                            <!-- Categorias serão carregadas aqui para seleção -->
+                        </select>
+                    </div>
+                    <div>
+                        <label for="parentSubcategorySelect" class="block text-sm font-medium text-gray-700">Subcategoria Principal (Opcional)</label>
+                        <select id="parentSubcategorySelect" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-500 focus:ring-opacity-50 p-2">
+                            <option value="">Nenhuma subcategoria principal</option>
+                            <!-- Subcategorias principais serão carregadas aqui -->
+                        </select>
+                    </div>
+                    <input type="hidden" id="subcategoryIdToEdit">
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full transition-colors duration-200 w-full">Salvar Subcategoria</button>
+                    <button type="button" id="cancelSubcategoryEditBtn" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-full transition-colors duration-200 w-full mt-2 hidden">Cancelar Edição</button>
+                </form>
+            </div>
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-2xl font-bold mb-4">Subcategorias Cadastradas</h3>
+                <div id="adminSubcategoryList" class="space-y-4">
+                    <p class="text-gray-500 text-center" id="loadingSubcategoriesMessage">Carregando subcategorias...</p>
+                    <!-- Subcategorias serão listadas aqui -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+<script type="module" src="assets/script.js"></script>
+</body>
